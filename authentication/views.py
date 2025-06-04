@@ -2,6 +2,7 @@ from django.shortcuts import render
 from rest_framework import generics,status
 from authentication.serializers import RegisterSerializer
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 class RegisterView(generics.GenericAPIView):
