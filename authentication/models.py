@@ -5,42 +5,49 @@ from django.contrib.auth.models import (
     AbstractBaseUser,BaseUserManager,PermissionsMixin)
 
 
-class ClientManager(BaseUserManager):
-    def create_client(self, email, clientname, password=None):
+class UserManager(BaseUserManager):
+
+    def create_user(self, email, username, password=None):
+        
         if email is None:
-            raise TypeError('Client must have an email')
-        if clientname is None:
-            raise TypeError('Client must have a clientname')
+            raise TypeError('The Email is required')
+        if username is None:
+            raise TypeError('The Name is required')
 
-        client = self.model(
+        user = self.model(
             email=self.normalize_email(email),
-            clientname=clientname
+            username=username
         )
-        client.set_password(password)
-        client.save()
-        return client
+        user.set_password(password)
+        user.save()
+        return user
 
-    def create_superuser(self, email, clientname, password=None):
+    def create_superuser(self, email, username, password=None):
+
         if password is None:
-            raise TypeError('Superuser must have a password')
+            raise TypeError('The Password is required')
 
-        admin = self.create_client(email, clientname, password)
-        admin.is_superuser = True
-        admin.is_staff = True
-        admin.save()
-        return admin
+        user = self.create_user(email, username, password)
+        user.is_superuser = True
+        user.is_active = True
+        user.is_staff = True
+        user.save()
+        return user
 
-class Client(AbstractBaseUser, PermissionsMixin):
-    clientname = models.CharField(max_length=255, unique=True, db_index=True)
+class User(AbstractBaseUser, PermissionsMixin):
+    
+    username = models.CharField(max_length=255, unique=True, db_index=True)
     email = models.EmailField(max_length=255, unique=True, db_index=True)
     is_verified = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     create_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['clientname']  
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email']  
 
-    objects = ClientManager()
+    objects = UserManager()
 
     def __str__(self):
         return self.email

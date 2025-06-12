@@ -1,25 +1,26 @@
 
 from rest_framework import serializers
-from authentication.models import Client
+from authentication.models import User
 
 
 class RegisterSerializer(serializers.ModelSerializer):
+    
     password = serializers.CharField(
         max_length=68, min_length=6, write_only=True)
     
     class Meta:
-        model = Client
-        fields = ['email', 'clientname', 'password']
+        model = User
+        fields = ['email', 'username', 'password']
 
     def validate(self, attrs):
         email = attrs.get('email', '')
-        clientname = attrs.get('clientname', '')
+        username = attrs.get('username', '')
 
-        if not clientname.isalnum():
+        if not username.isalnum():
             raise serializers.ValidationError(
-                'The clientname should only contain alphanumeric characters'
+                'The Name should only contain alphanumeric characters'
             )
         return attrs
     
     def create(self, validated_data):
-        return Client.objects.create_client(**validated_data)
+        return User.objects.create_user(**validated_data)
