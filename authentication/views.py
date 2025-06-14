@@ -25,7 +25,6 @@ class RegisterView(generics.GenericAPIView):
         user_data = serializer.data
 
         user = User.objects.get(email = user_data['email'])
-
         token = RefreshToken.for_user(user).access_token
 
         current_site = get_current_site(request).domain
@@ -54,7 +53,7 @@ class VerifyEmail(views.APIView):
 
         try:
 
-            payload = jwt.decode(token, settings.SECRET_KEY)
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
             user = User.objects.get(id=payload['user_id'])
             if not user.is_verified:
                 user.is_verified = True
