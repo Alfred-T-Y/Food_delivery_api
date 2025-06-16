@@ -18,3 +18,8 @@ class Expense(models.Model):
     owner = models.ForeignKey(to=User, on_delete=models.CASCADE)
     date = models.DateField(null=False, blank=False)
 
+    class Meta:
+        ordering = ['-date']
+
+    def __str__(self):
+        return str(self.owner)+'s expense' 

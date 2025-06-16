@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from rest_framework import generics, status, views
 from authentication.serializers import (RegisterSerializer, 
-    EmailVerificationSerializer, LoginSerializer)
+    EmailVerificationSerializer, LoginSerializer, 
+    RequestPasswordResetEmailSerializer)
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User
@@ -12,10 +13,12 @@ import jwt
 from django.conf import settings
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from .renderers import UserRender
 
 class RegisterView(generics.GenericAPIView):
 
     serializer_class=RegisterSerializer
+    renderer_classes=(UserRender,)
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
@@ -82,3 +85,17 @@ class LoginAPIView(generics.GenericAPIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class RequestPasswordResetEmail(generics.GenericAPIView):
+    
+    serializer_class = RequestPasswordResetEmailSerializer
+
+    def post(self, request):
+        data = {'request':request, 'data':request.data}
+        serializer=self.serializer_class(data)
+        serializer.is_valid(raise_exception=True)
+        return Response({'success': 'We have sent you a link to reset your password.'
+            'Check your Mails.'},status=status.HTTP_200_OK)
+
+class PasswordTokenCheckAPI(generics.GenericAPIView):
+    def get(self, request, uidb64, token):
+        pass
