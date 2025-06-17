@@ -125,7 +125,7 @@ class RequestPasswordResetEmailSerializer(serializers.Serializer):
             raise AuthenticationFailed(
                 'This Email doesn\'t exist'
             )
-        uidb64 = urlsafe_base64_encode(force_bytes(user.id))
+        uidb64 = urlsafe_base64_encode(smart_bytes(user.id))
         token = PasswordResetTokenGenerator().make_token(user)
         current_site = get_current_site(request).domain
         relativeLink = reverse('password-reset-confirm', kwargs={'uidb64':uidb64, 'token':token})
