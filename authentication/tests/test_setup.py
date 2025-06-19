@@ -16,7 +16,7 @@ class TestSetup(APITestCase):
 	        #'username': "alfred",
 	        #'password': "motdepasse",
 	        'email': self.fake.email(),
-	        'username': self.fake.name().split(' ')[0],
+	        'username': self.fake.email().split('@')[0],
 	        'password': self.fake.password(),
         }
     
