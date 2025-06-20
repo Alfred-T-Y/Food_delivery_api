@@ -5,6 +5,7 @@ run_tests:
   stage: test
   image: python:3.10-slim
   before_script:
-      -pip install -r requirements.txt
+    - pip install -r requirements.txt
   script:
     - python manage.py test
+
