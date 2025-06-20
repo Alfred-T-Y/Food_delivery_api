@@ -32,7 +32,7 @@ class RegisterView(generics.GenericAPIView):
         user_data = serializer.data
 
         
-        return Response(user_data, status=status.HTTP_200_OK)
+        return Response(user_data, status=status.HTTP_201_CREATED)
     
 
 
