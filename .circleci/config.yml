@@ -15,7 +15,7 @@ jobs:
           command: docker-compose -f docker-compose.yml up
       - run:
           name: Run Django tests
-          command: docker-compose -f docker-compose.yml run web python manage.py test
+          command: docker-compose -f docker-compose.yml run web python ./manage.py test
       - run:
           name: Tear down containers
           command: docker-compose down

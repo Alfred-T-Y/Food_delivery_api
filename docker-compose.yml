@@ -4,6 +4,8 @@ services:
   web:
     build: .
     command: gunicorn food_delivery_api.wsgi --bind 0.0.0.0:8000
+    volumes:
+      - .:/app
     ports:
       - "8000:8000"
     environment:
