@@ -3,21 +3,32 @@ version: 2.1
 jobs:
   run_tests:
     docker:
-      - image: python:3.10-slim
+      - image: docker:24.0.5  # image docker officielle (inclut docker CLI)
+      - image: circleci/python:3.10-slim-browsers  # image Python pour tes commandes python
+        environment:
+          DOCKER_HOST: tcp://docker:2375
+          DOCKER_TLS_VERIFY: 0
     steps:
       - checkout
+      - setup_remote_docker:
+          version: 24.0.5
+          docker_layer_caching: true
       - run:
-          name: Build docker
+          name: Build docker images
           command: docker-compose build
       - run:
-          name: Run docker
-          command: docker-compose up
+          name: Start containers (détaché)
+          command: docker-compose up -d
       - run:
           name: Run Django tests
           command: docker-compose run web python manage.py test
+      - run:
+          name: Tear down containers
+          command: docker-compose down
 
 workflows:
   version: 2
   test_workflow:
     jobs:
       - run_tests
+
