@@ -3,13 +3,14 @@ version: '3.9'
 services:
   web:
     build: .
-    env_file:
-      - .env
-    command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - .:/app
+    command: gunicorn food_delivery_api.wsgi --bind 0.0.0.0:8000
     ports:
       - "8000:8000"
     environment:
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
+      - DEBUG
+      - SECRET_KEY
+      - DJANGO_SETTINGS_MODULE
+      - EMAIL_HOST_USER 
+      - EMAIL_HOST_PASSWORD
