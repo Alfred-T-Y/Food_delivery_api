@@ -11,8 +11,8 @@ jobs:
           name: Build docker images
           command: docker-compose -f docker-compose.yml build
       - run:
-          name: Start containers (détaché)
-          command: docker-compose -f docker-compose.yml up
+          name: Lister fichiers dans l’image
+          command: docker-compose -f docker-compose.yml run web ls -la /app
       - run:
           name: Run Django tests
           command: docker-compose -f docker-compose.yml run web python ./manage.py test
