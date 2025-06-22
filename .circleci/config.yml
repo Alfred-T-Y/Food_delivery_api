@@ -15,7 +15,7 @@ jobs:
           command: docker-compose -f docker-compose.yml up
       - run:
           name: Debug project files
-          command: docker-compose run web ls /app
+          command: docker-compose -f docker-compose.yml run web ls /app
 
       - run:
           name: Run Django tests
