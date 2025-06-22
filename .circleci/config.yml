@@ -12,7 +12,7 @@ jobs:
           command: docker-compose build
       - run:
           name: Start containers (détaché)
-          command: docker-compose up -d
+          command: docker-compose -f docker-compose.yml up
       - run:
           name: Run Django tests
           command: docker-compose run web python manage.py test
