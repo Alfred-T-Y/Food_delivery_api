@@ -3,16 +3,10 @@ version: 2.1
 jobs:
   run_tests:
     docker:
-      - image: docker:24.0.5  # image docker officielle (inclut docker CLI)
-      - image: circleci/python:3.10-slim-browsers  # image Python pour tes commandes python
-        environment:
-          DOCKER_HOST: tcp://docker:2375
-          DOCKER_TLS_VERIFY: 0
+      - image: cimg/python:3.10  # image CircleCI officielle avec python & pip
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 24.0.5
-          docker_layer_caching: true
+      - setup_remote_docker  # ⬅️ version supprimée ici
       - run:
           name: Build docker images
           command: docker-compose build
