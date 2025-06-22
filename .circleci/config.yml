@@ -8,10 +8,6 @@ jobs:
       - checkout
       - setup_remote_docker  # ⬅️ version supprimée ici
       - run:
-        name: Check local project files
-        command: ls -la
-
-      - run:
           name: Build docker images
           command: docker-compose -f docker-compose.yml build
       - run:
