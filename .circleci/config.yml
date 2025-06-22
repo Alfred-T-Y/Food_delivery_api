@@ -9,7 +9,7 @@ jobs:
       - setup_remote_docker  # ⬅️ version supprimée ici
       - run:
           name: Build docker images
-          command: docker-compose build
+          command: docker-compose -f docker-compose.yml build
       - run:
           name: Start containers (détaché)
           command: docker-compose -f docker-compose.yml up
