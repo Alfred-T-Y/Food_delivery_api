@@ -13,7 +13,6 @@ from datetime import timedelta
 from dotenv import load_dotenv
 import os
 from pathlib import Path
-import django_heroku
 
 load_dotenv()
 
@@ -154,4 +153,3 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-django_heroku.settings(locals())

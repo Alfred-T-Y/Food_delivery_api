@@ -1,4 +1,5 @@
 
+from django.conf import settings
 from rest_framework import serializers
 from authentication.models import User
 from rest_framework.exceptions import AuthenticationFailed
@@ -12,6 +13,7 @@ from django.urls import reverse
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User
 from django.urls import reverse
+import jwt
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -60,12 +62,28 @@ class RegisterSerializer(serializers.ModelSerializer):
     
 
 class EmailVerificationSerializer(serializers.Serializer):
-    
-    token = serializers.CharField(max_length=555)
 
-    class Meta:
-        model = User
-        fields = ['token']
+    def validate(self, attrs):
+
+        request=self.context.get('request')
+        token = request.GET.get('token')       
+        try:
+
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+            user = User.objects.get(id=payload['user_id'])
+            if not user.is_verified:
+                user.is_verified = True
+                user.is_active = True
+                user.save()
+
+        except jwt.ExpiredSignatureError as identifier:
+            
+            raise AuthenticationFailed("Activation expired")
+        
+        except jwt.exceptions.DecodeError as identifier:
+            
+            raise AuthenticationFailed('Invalid token')
+        return attrs    
 
 class LoginSerializer(serializers.ModelSerializer):
 
@@ -100,7 +118,7 @@ class LoginSerializer(serializers.ModelSerializer):
                 'Account disabled, contact admin'
             )
         if not user.is_verified:
-            raise AuthenticationFailed(
+            raise (
                 'Email is not verified'
             )
         return{
@@ -135,6 +153,23 @@ class RequestPasswordResetEmailSerializer(serializers.Serializer):
                 'email_subject': 'Reset your password'}
 
         Util.send_email(data)
+        
+        return attrs
+    
+class PasswordTokenCheckAPISerializer(serializers.Serializer):
+
+    def validate(self, attrs):
+        uidb64=self.context.get('uidb64')
+        token=self.context.get('token')
+        try:
+            id=smart_str(urlsafe_base64_decode(uidb64))
+            user=User.objects.get(id=id)
+
+            if not PasswordResetTokenGenerator().check_token(user, token):
+                raise AuthenticationFailed('This link isn\'t valid anymore,please request a new one')
+            
+        except DjangoUnicodeDecodeError as identifier:
+            raise AuthenticationFailed('This link isn\'t valid,please request a new one')
         
         return attrs
     
