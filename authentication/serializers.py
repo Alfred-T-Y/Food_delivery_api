@@ -2,7 +2,7 @@
 from django.conf import settings
 from rest_framework import serializers
 from authentication.models import User
-from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.exceptions import AuthenticationFailed, ValidationError
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.encoding import smart_str, force_bytes, smart_bytes, DjangoUnicodeDecodeError
@@ -10,7 +10,7 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from .utils import Util
 from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError 
 from .models import User
 from django.urls import reverse
 import jwt
@@ -90,7 +90,16 @@ class LoginSerializer(serializers.ModelSerializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
     username = serializers.CharField(read_only=True)
-    tokens = serializers.CharField(read_only=True)
+    tokens = serializers.SerializerMethodField()
+
+    def get_tokens(self, obj):
+
+        user = User.objects.get(email=obj['email'])
+
+        return {
+            'access':user.tokens()['access'],
+            'refresh':user.tokens()['refresh']
+        }
 
     class Meta():
         model = User
@@ -99,9 +108,7 @@ class LoginSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         email = attrs.get('email', '')
         password = attrs.get('password', '')
-        #print('\n\n'+str(email)+str(password)+'\n\n')
 
-        #user=auth.authenticate(email=email, password=password)
         user = User.objects.filter(email=email).first()
 
 
@@ -124,7 +131,6 @@ class LoginSerializer(serializers.ModelSerializer):
         return{
             'email': user.email,
             'username': user.username,
-            'tokens': user.tokens
         }
 
 class RequestPasswordResetEmailSerializer(serializers.Serializer):
@@ -205,3 +211,17 @@ class SetNewPasswordSerializer(serializers.Serializer):
                 'The reset Link is invalid', 401
             )
         return super().validate(attrs)
+    
+class LogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField()
+
+    def validate(self, attrs):
+        self.token = attrs['refresh']
+        return attrs
+    
+    def save(self,**kwargs):
+        try:
+            RefreshToken(self.token).blacklist()
+        except TokenError:
+            raise ValidationError({'error': 'Token is invalid or expired.'})  
+
